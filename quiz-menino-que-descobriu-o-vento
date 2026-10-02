@@ -1,0 +1,816 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quiz – O Menino que Descobriu o Vento</title>
+
+<style>
+    * {
+        box-sizing: border-box;
+    }
+
+    body {
+        margin: 0;
+        font-family: Arial, Helvetica, sans-serif;
+        background: linear-gradient(135deg, #dff6ff, #eefbe7);
+        color: #17324d;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+    }
+
+    .container {
+        width: 100%;
+        max-width: 850px;
+        background: #ffffff;
+        border-radius: 24px;
+        padding: 30px;
+        box-shadow: 0 10px 35px rgba(0, 0, 0, 0.12);
+    }
+
+    .header {
+        text-align: center;
+        margin-bottom: 25px;
+    }
+
+    .wind-icon {
+        font-size: 50px;
+        margin-bottom: 5px;
+    }
+
+    h1 {
+        margin: 0;
+        font-size: 30px;
+        color: #176b87;
+    }
+
+    .subtitle {
+        margin-top: 8px;
+        font-size: 17px;
+        color: #527080;
+    }
+
+    .progress-area {
+        margin: 20px 0;
+    }
+
+    .progress-text {
+        text-align: center;
+        font-size: 18px;
+        font-weight: bold;
+        margin-bottom: 8px;
+    }
+
+    .progress-bar {
+        width: 100%;
+        height: 12px;
+        background: #e2edf1;
+        border-radius: 10px;
+        overflow: hidden;
+    }
+
+    .progress-fill {
+        height: 100%;
+        width: 0%;
+        background: #2e9f72;
+        transition: width 0.3s ease;
+    }
+
+    .question-box {
+        background: #f5fbfd;
+        border-left: 6px solid #2e9f72;
+        border-radius: 15px;
+        padding: 25px;
+        margin: 25px 0;
+    }
+
+    .question {
+        font-size: 23px;
+        line-height: 1.45;
+        font-weight: bold;
+        margin: 0 0 25px 0;
+    }
+
+    .alternatives {
+        display: grid;
+        gap: 14px;
+    }
+
+    .alternative {
+        width: 100%;
+        text-align: left;
+        padding: 18px 20px;
+        border: 2px solid #c8dce3;
+        border-radius: 14px;
+        background: #ffffff;
+        font-size: 19px;
+        cursor: pointer;
+        transition: 0.2s;
+        color: #17324d;
+    }
+
+    .alternative:hover:not(:disabled) {
+        background: #eef9fc;
+        border-color: #2991ad;
+        transform: translateY(-2px);
+    }
+
+    .alternative.selected {
+        background: #dff3f8;
+        border-color: #197c99;
+        box-shadow: 0 0 0 3px rgba(25, 124, 153, 0.12);
+    }
+
+    .alternative.correct {
+        background: #dff5e7;
+        border-color: #299957;
+        color: #145b31;
+    }
+
+    .alternative.incorrect {
+        background: #fde3e3;
+        border-color: #d94b4b;
+        color: #7b2020;
+    }
+
+    .alternative:disabled {
+        cursor: default;
+    }
+
+    .button-area {
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+        margin-top: 25px;
+        flex-wrap: wrap;
+    }
+
+    .btn {
+        border: none;
+        border-radius: 13px;
+        padding: 16px 28px;
+        font-size: 18px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: 0.2s;
+    }
+
+    .btn:hover:not(:disabled) {
+        transform: translateY(-2px);
+    }
+
+    .btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+
+    .btn-answer {
+        background: #176b87;
+        color: white;
+    }
+
+    .btn-next {
+        background: #2e9f72;
+        color: white;
+    }
+
+    .btn-restart {
+        background: #176b87;
+        color: white;
+    }
+
+    .feedback {
+        display: none;
+        margin-top: 22px;
+        padding: 18px;
+        border-radius: 14px;
+        font-size: 18px;
+        line-height: 1.5;
+    }
+
+    .feedback.correct {
+        display: block;
+        background: #e4f7eb;
+        border: 2px solid #53ad72;
+        color: #175b31;
+    }
+
+    .feedback.incorrect {
+        display: block;
+        background: #fde9e9;
+        border: 2px solid #db6a6a;
+        color: #762525;
+    }
+
+    .result {
+        display: none;
+        text-align: center;
+    }
+
+    .result-icon {
+        font-size: 65px;
+        margin-bottom: 10px;
+    }
+
+    .result h2 {
+        font-size: 30px;
+        color: #176b87;
+        margin: 10px 0 25px;
+    }
+
+    .score-card {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 15px;
+        margin: 25px 0;
+    }
+
+    .score-item {
+        background: #f2f8fa;
+        border-radius: 15px;
+        padding: 20px 10px;
+    }
+
+    .score-number {
+        display: block;
+        font-size: 32px;
+        font-weight: bold;
+        color: #176b87;
+        margin-bottom: 5px;
+    }
+
+    .score-label {
+        font-size: 16px;
+    }
+
+    .performance {
+        background: #eef8f1;
+        border-radius: 15px;
+        padding: 20px;
+        font-size: 20px;
+        line-height: 1.5;
+        margin-bottom: 25px;
+    }
+
+    .hidden {
+        display: none !important;
+    }
+
+    @media (max-width: 600px) {
+        body {
+            padding: 10px;
+        }
+
+        .container {
+            padding: 20px 15px;
+            border-radius: 18px;
+        }
+
+        h1 {
+            font-size: 24px;
+        }
+
+        .question {
+            font-size: 20px;
+        }
+
+        .alternative {
+            font-size: 17px;
+            padding: 16px;
+        }
+
+        .score-card {
+            grid-template-columns: 1fr;
+        }
+
+        .btn {
+            width: 100%;
+        }
+    }
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <div id="quiz">
+
+        <div class="header">
+            <div class="wind-icon">🌬️</div>
+
+            <h1>O Menino que Descobriu o Vento</h1>
+
+            <div class="subtitle">
+                Quiz – Vento, energia e meio ambiente
+            </div>
+        </div>
+
+        <div class="progress-area">
+
+            <div class="progress-text" id="progressText">
+                Pergunta 1 de 10
+            </div>
+
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+
+        </div>
+
+        <div class="question-box">
+
+            <p class="question" id="question"></p>
+
+            <div class="alternatives" id="alternatives"></div>
+
+            <div id="feedback" class="feedback"></div>
+
+            <div class="button-area">
+
+                <button
+                    class="btn btn-answer"
+                    id="answerBtn"
+                    disabled>
+                    Responder
+                </button>
+
+                <button
+                    class="btn btn-next hidden"
+                    id="nextBtn">
+                    Próxima pergunta
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <div id="result" class="result">
+
+        <div class="result-icon">
+            🌬️⚡🌱
+        </div>
+
+        <h2>Quiz concluído!</h2>
+
+        <div class="score-card">
+
+            <div class="score-item">
+                <span class="score-number" id="correctCount">0</span>
+                <span class="score-label">Acertos</span>
+            </div>
+
+            <div class="score-item">
+                <span class="score-number" id="wrongCount">0</span>
+                <span class="score-label">Erros</span>
+            </div>
+
+            <div class="score-item">
+                <span class="score-number" id="percentage">0%</span>
+                <span class="score-label">Aproveitamento</span>
+            </div>
+
+        </div>
+
+        <div class="performance" id="performanceMessage"></div>
+
+        <button
+            class="btn btn-restart"
+            id="restartBtn">
+            Jogar novamente
+        </button>
+
+    </div>
+
+</div>
+
+<script>
+
+const questions = [
+
+    {
+        question: "Em qual país William Kamkwamba nasceu?",
+        alternatives: [
+            "Brasil",
+            "Malauí",
+            "África do Sul",
+            "Quênia"
+        ],
+        correct: 1,
+        explanation: "William Kamkwamba nasceu no Malauí."
+    },
+
+    {
+        question: "Qual era a principal atividade da família de William?",
+        alternatives: [
+            "Pesca",
+            "Comércio",
+            "Agricultura",
+            "Mineração"
+        ],
+        correct: 2,
+        explanation: "A principal atividade da família de William era a agricultura."
+    },
+
+    {
+        question: "Por que William deixou de frequentar a escola?",
+        alternatives: [
+            "Porque não gostava das aulas.",
+            "Porque sua família não podia pagar as mensalidades.",
+            "Porque precisou viajar para outra cidade.",
+            "Porque a escola foi destruída pela seca."
+        ],
+        correct: 1,
+        explanation: "William deixou de frequentar a escola porque sua família não podia pagar as mensalidades."
+    },
+
+    {
+        question: "O que William fazia em seu tempo livre?",
+        alternatives: [
+            "Consertava rádios e procurava peças no ferro-velho.",
+            "Vendia alimentos na cidade.",
+            "Trabalhava em uma fábrica.",
+            "Construía casas para os moradores."
+        ],
+        correct: 0,
+        explanation: "William consertava rádios e procurava peças no ferro-velho."
+    },
+
+    {
+        question: "O que William aprendeu na biblioteca da escola?",
+        alternatives: [
+            "Técnicas de agricultura tradicional.",
+            "História do continente africano.",
+            "Engenharia elétrica e produção de energia.",
+            "Técnicas de pesca e navegação."
+        ],
+        correct: 2,
+        explanation: "Na biblioteca, William estudou sobre engenharia elétrica e produção de energia."
+    },
+
+    {
+        question: "Qual foi uma das principais consequências da seca para a comunidade de William?",
+        alternatives: [
+            "Aumento da produção agrícola.",
+            "Falta de colheitas e fome.",
+            "Construção de novas escolas.",
+            "Aumento da quantidade de água disponível."
+        ],
+        correct: 1,
+        explanation: "A seca provocou falta de colheitas e fome na comunidade."
+    },
+
+    {
+        question: "Qual foi a solução imaginada por William para ajudar sua comunidade?",
+        alternatives: [
+            "Construir uma estrada.",
+            "Construir uma escola maior.",
+            "Construir um moinho de vento para produzir energia e bombear água.",
+            "Comprar alimentos em outro país."
+        ],
+        correct: 2,
+        explanation: "William imaginou construir um moinho de vento para produzir energia e bombear água."
+    },
+
+    {
+        question: "Por que William precisava da bicicleta de sua família?",
+        alternatives: [
+            "Para viajar até outra cidade.",
+            "Para vender a bicicleta e comprar alimentos.",
+            "Para utilizar suas peças na construção do moinho de vento.",
+            "Para transportar água para a aldeia."
+        ],
+        correct: 2,
+        explanation: "William precisava da bicicleta para utilizar suas peças na construção do moinho de vento."
+    },
+
+    {
+        question: "Por que o pai de William inicialmente não apoiou seu projeto?",
+        alternatives: [
+            "Porque não acreditava que o projeto funcionaria.",
+            "Porque queria que William abandonasse a agricultura.",
+            "Porque não conhecia a existência dos moinhos de vento.",
+            "Porque queria construir uma máquina diferente."
+        ],
+        correct: 0,
+        explanation: "Inicialmente, o pai de William não acreditava que o projeto funcionaria."
+    },
+
+    {
+        question: "Qual foi o resultado da construção do moinho de vento?",
+        alternatives: [
+            "A comunidade abandonou a aldeia.",
+            "A água pôde ser bombeada, ajudando na agricultura e permitindo uma nova semeadura.",
+            "A família de William deixou de trabalhar na agricultura.",
+            "A seca atingiu outras aldeias."
+        ],
+        correct: 1,
+        explanation: "A água pôde ser bombeada, ajudando na agricultura e permitindo uma nova semeadura."
+    }
+
+];
+
+let currentQuestion = 0;
+let score = 0;
+let answered = false;
+let selectedAlternative = null;
+
+const questionElement =
+    document.getElementById("question");
+
+const alternativesElement =
+    document.getElementById("alternatives");
+
+const answerBtn =
+    document.getElementById("answerBtn");
+
+const nextBtn =
+    document.getElementById("nextBtn");
+
+const feedbackElement =
+    document.getElementById("feedback");
+
+const progressText =
+    document.getElementById("progressText");
+
+const progressFill =
+    document.getElementById("progressFill");
+
+
+function shuffle(array) {
+
+    const newArray = [...array];
+
+    for (let i = newArray.length - 1; i > 0; i--) {
+
+        const j =
+            Math.floor(Math.random() * (i + 1));
+
+        [newArray[i], newArray[j]] =
+            [newArray[j], newArray[i]];
+    }
+
+    return newArray;
+}
+
+
+function loadQuestion() {
+
+    answered = false;
+    selectedAlternative = null;
+
+    answerBtn.disabled = true;
+
+    answerBtn.classList.remove("hidden");
+
+    nextBtn.classList.add("hidden");
+
+    feedbackElement.className = "feedback";
+
+    feedbackElement.innerHTML = "";
+
+    const q = questions[currentQuestion];
+
+    questionElement.textContent = q.question;
+
+    progressText.textContent =
+        `Pergunta ${currentQuestion + 1} de ${questions.length}`;
+
+    progressFill.style.width =
+        `${((currentQuestion + 1) / questions.length) * 100}%`;
+
+    alternativesElement.innerHTML = "";
+
+    const alternativesWithIndex =
+        q.alternatives.map((text, index) => ({
+            text: text,
+            originalIndex: index
+        }));
+
+    const shuffledAlternatives =
+        shuffle(alternativesWithIndex);
+
+    shuffledAlternatives.forEach((alternative, position) => {
+
+        const button =
+            document.createElement("button");
+
+        button.className = "alternative";
+
+        button.textContent =
+            `${String.fromCharCode(65 + position)}) ${alternative.text}`;
+
+        button.dataset.index =
+            alternative.originalIndex;
+
+        button.addEventListener("click", () => {
+
+            if (answered) return;
+
+            document
+                .querySelectorAll(".alternative")
+                .forEach(btn =>
+                    btn.classList.remove("selected")
+                );
+
+            button.classList.add("selected");
+
+            selectedAlternative =
+                alternative.originalIndex;
+
+            answerBtn.disabled = false;
+
+        });
+
+        alternativesElement.appendChild(button);
+
+    });
+}
+
+
+answerBtn.addEventListener("click", () => {
+
+    if (
+        answered ||
+        selectedAlternative === null
+    ) {
+        return;
+    }
+
+    answered = true;
+
+    const q = questions[currentQuestion];
+
+    const buttons =
+        document.querySelectorAll(".alternative");
+
+    buttons.forEach(button => {
+
+        button.disabled = true;
+
+        const index =
+            Number(button.dataset.index);
+
+        if (index === q.correct) {
+
+            button.classList.add("correct");
+
+        }
+
+        if (
+            index === selectedAlternative &&
+            selectedAlternative !== q.correct
+        ) {
+
+            button.classList.add("incorrect");
+
+        }
+
+    });
+
+
+    if (selectedAlternative === q.correct) {
+
+        score++;
+
+        feedbackElement.className =
+            "feedback correct";
+
+        feedbackElement.innerHTML =
+            `<strong>✓ Resposta correta!</strong><br>${q.explanation}`;
+
+    } else {
+
+        feedbackElement.className =
+            "feedback incorrect";
+
+        feedbackElement.innerHTML =
+            `<strong>✗ Resposta incorreta.</strong><br>${q.explanation}`;
+
+    }
+
+    answerBtn.classList.add("hidden");
+
+    nextBtn.classList.remove("hidden");
+
+});
+
+
+nextBtn.addEventListener("click", () => {
+
+    currentQuestion++;
+
+    if (currentQuestion < questions.length) {
+
+        loadQuestion();
+
+    } else {
+
+        showResult();
+
+    }
+
+});
+
+
+function showResult() {
+
+    document
+        .getElementById("quiz")
+        .classList.add("hidden");
+
+    document
+        .getElementById("result")
+        .style.display = "block";
+
+    const total =
+        questions.length;
+
+    const errors =
+        total - score;
+
+    const percentage =
+        Math.round((score / total) * 100);
+
+    document
+        .getElementById("correctCount")
+        .textContent = score;
+
+    document
+        .getElementById("wrongCount")
+        .textContent = errors;
+
+    document
+        .getElementById("percentage")
+        .textContent = percentage + "%";
+
+
+    let message = "";
+
+    if (percentage === 100) {
+
+        message =
+            "Excelente! Você acertou todas as questões! 🌟";
+
+    } else if (percentage >= 80) {
+
+        message =
+            "Muito bem! Você demonstrou um ótimo conhecimento sobre o filme! 👏";
+
+    } else if (percentage >= 60) {
+
+        message =
+            "Bom trabalho! Você compreendeu vários pontos importantes do filme. 👍";
+
+    } else if (percentage >= 40) {
+
+        message =
+            "Você está no caminho certo! Que tal rever alguns pontos do filme e tentar novamente?";
+
+    } else {
+
+        message =
+            "Continue estudando! Rever o filme pode ajudar a compreender melhor a história.";
+
+    }
+
+    document
+        .getElementById("performanceMessage")
+        .textContent = message;
+
+}
+
+
+document
+    .getElementById("restartBtn")
+    .addEventListener("click", () => {
+
+        currentQuestion = 0;
+        score = 0;
+        answered = false;
+        selectedAlternative = null;
+
+        document
+            .getElementById("result")
+            .style.display = "none";
+
+        document
+            .getElementById("quiz")
+            .classList.remove("hidden");
+
+        loadQuestion();
+
+    });
+
+
+loadQuestion();
+
+</script>
+
+</body>
+</html>
